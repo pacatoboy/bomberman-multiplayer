@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Bomberman 8 Players - Special Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg1: #1d1b3a; --bg2: #2d1f52; --card: #2a2850; --card2: #34315f;
+            --line: #45417a; --text: #fff; --muted: #b9b4e0;
+            --orange: #ff8a3d; --yellow: #ffd23f; --green: #3ddc84; --red: #ff5d73; --blue: #4cc9f0;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { margin: 0; }
+        body {
+            min-height: 100vh; color: var(--text);
+            font-family: 'Fredoka', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 0%, #3b2a6e 0, transparent 45%), linear-gradient(160deg, var(--bg1), var(--bg2));
+            background-attachment: fixed;
+            text-align: center; padding: 0 12px 24px;
+        }
+        h1 { margin: 14px 0 4px; font-size: 32px; font-weight: 700; text-shadow: 0 4px 0 rgba(0,0,0,.35); }
+        h1 span { color: var(--yellow); }
+        .hidden { display: none !important; }
+        button { font: inherit; color: inherit; cursor: pointer; }
+        button:disabled { opacity: .45; cursor: not-allowed; }
+        input {
+            width: 100%; padding: 11px 14px; font: inherit; font-size: 17px; border-radius: 12px;
+            border: 2px solid var(--line); background: #1f1d3d; color: #fff; outline: none;
+        }
+        input:focus { border-color: var(--yellow); }
+
+        .btn {
+            width: 100%; padding: 12px; font-size: 19px; font-weight: 700; border: 0; border-radius: 14px; color: #3a1d00;
+            background: linear-gradient(180deg, #ffd23f, #ff9f1c); box-shadow: 0 5px 0 #c46a00; transition: transform .08s, box-shadow .08s;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #c46a00; }
+        .btn.green { background: linear-gradient(180deg, #5cf0a0, #22b866); box-shadow: 0 5px 0 #127a42; color: #06321b; }
+        .btn.gray { background: linear-gradient(180deg, #8a85c9, #625da3); box-shadow: 0 5px 0 #403c78; color: #fff; }
+        .chip {
+            padding: 6px 10px; border-radius: 10px; border: 2px solid var(--line); background: var(--card2); font-size: 14px;
+        }
+        .chip.on { border-color: var(--yellow); background: #4a4580; }
+
+        /* ---------- Tela inicial ---------- */
+        #home .panel {
+            max-width: 440px; margin: 10px auto; padding: 20px; border-radius: 22px;
+            background: var(--card); border: 2px solid var(--line); box-shadow: 0 10px 0 rgba(0,0,0,.25);
+        }
+        #preview { width: 110px; height: 110px; display: block; margin: 0 auto; }
+        .label { text-align: left; color: var(--muted); font-size: 13px; margin: 12px 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+        .swatches, .hats { display: flex; flex-wrap: wrap; gap: 7px; }
+        .swatch { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; }
+        .swatch.on { border-color: #fff; transform: scale(1.12); }
+        .hatBtn { width: 44px; height: 40px; border-radius: 10px; border: 2px solid var(--line); background: var(--card2); font-size: 20px; }
+        .hatBtn.on { border-color: var(--yellow); background: #4a4580; }
+        .joinRow { display: flex; gap: 8px; margin-top: 14px; }
+        .joinRow input { text-transform: uppercase; letter-spacing: .3em; text-align: center; font-weight: 700; }
+        .joinRow .btn { width: 140px; flex: none; font-size: 17px; }
+        .or { color: var(--muted); margin: 12px 0 0; font-size: 14px; }
+        details { margin-top: 14px; color: var(--muted); font-size: 14px; text-align: left; }
+        details input { margin-top: 8px; font-size: 14px; padding: 9px 12px; }
+        #error { color: var(--red); min-height: 22px; margin-top: 10px; font-weight: 600; }
+        #rejoinHint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+        /* ---------- Jogo ---------- */
+        #game { display: flex; justify-content: center; align-items: flex-start; gap: 16px; }
+        .board { padding: 8px; border-radius: 18px; background: #2b2a4f; border: 2px solid var(--line); box-shadow: 0 8px 0 rgba(0,0,0,.3); }
+        #gameCanvas { display: block; border-radius: 12px; touch-action: none; }
+        #side { width: 270px; text-align: left; flex: none; }
+        .card { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 11px 13px; margin-bottom: 10px; box-shadow: 0 4px 0 rgba(0,0,0,.2); }
+        .card h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+        .roomRow { display: flex; align-items: center; gap: 8px; }
+        .roomRow b { font-size: 24px; letter-spacing: .15em; color: var(--yellow); flex: 1; }
+        .iconBtn { padding: 6px 9px; border-radius: 10px; border: 2px solid var(--line); background: var(--card2); font-size: 14px; }
+        .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .muted { color: var(--muted); font-size: 13px; }
+        .votes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+        .vote { text-align: left; padding: 6px 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--card2); font-size: 13px; line-height: 1.2; }
+        .vote.on { border-color: var(--yellow); }
+        .vote small { color: var(--muted); display: block; }
+        .vote .count { float: right; color: var(--yellow); font-weight: 700; }
+        .skillRow { display: flex; align-items: center; gap: 10px; }
+        #skillIcon { font-size: 28px; width: 44px; height: 44px; border-radius: 12px; background: var(--card2); display: grid; place-items: center; }
+        #skillName { font-size: 19px; font-weight: 700; }
+        #skillDesc { color: var(--muted); font-size: 13px; margin: 6px 0 8px; }
+        .bar { height: 10px; background: #1f1d3d; border-radius: 6px; overflow: hidden; }
+        #cdFill { height: 100%; width: 100%; background: var(--green); border-radius: 6px; }
+        #cdText { font-size: 13px; margin-top: 5px; color: var(--muted); }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .stat { background: var(--card2); border-radius: 12px; padding: 6px; text-align: center; }
+        .stat b { display: block; font-size: 20px; }
+        .stat small { color: var(--muted); font-size: 11px; }
+        #badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .badge { font-size: 12px; padding: 3px 8px; border-radius: 8px; background: var(--card2); border: 1px solid var(--line); }
+        .badge.curse { background: #4b1d6e; border-color: #9b5cf6; }
+        #playerList { list-style: none; padding: 0; margin: 0; }
+        #playerList li { display: flex; align-items: center; gap: 7px; padding: 3px 0; font-size: 14px; }
+        #playerList .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; border: 2px solid rgba(0,0,0,.3); }
+        #playerList .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #playerList .dead .nm { opacity: .5; }
+        #playerList .sk { font-size: 15px; }
+        .score { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 14px; }
+        .score .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pips { letter-spacing: 2px; color: var(--yellow); }
+        .kbd { display: inline-block; background: var(--card2); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; padding: 0 6px; font-size: 12px; }
+        .controls { font-size: 13px; line-height: 1.9; }
+
+        #toast {
+            position: fixed; left: 50%; top: 16px; transform: translateX(-50%); z-index: 50;
+            background: rgba(20,18,45,.92); border: 2px solid var(--line); padding: 8px 16px; border-radius: 14px; font-weight: 600;
+            transition: opacity .3s; pointer-events: none;
+        }
+        .modal { position: fixed; inset: 0; background: rgba(10,8,25,.6); z-index: 40; display: grid; place-items: center; }
+        .modal .card { width: min(340px, 92vw); text-align: left; }
+        .toggle { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+
+        /* ---------- Toque ---------- */
+        #touch { position: fixed; left: 0; right: 0; bottom: 0; height: 190px; z-index: 30; pointer-events: none; }
+        #stick {
+            position: absolute; left: 18px; bottom: 18px; width: 150px; height: 150px; border-radius: 50%;
+            background: rgba(255,255,255,.08); border: 3px solid rgba(255,255,255,.25); pointer-events: auto; touch-action: none;
+        }
+        #knob {
+            position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+            background: rgba(255,255,255,.35); border: 3px solid rgba(255,255,255,.6);
+        }
+        .tbtn {
+            position: absolute; border-radius: 50%; border: 3px solid rgba(255,255,255,.5); pointer-events: auto; touch-action: none;
+            background: rgba(255,255,255,.14); font-size: 30px; display: grid; place-items: center; user-select: none;
+        }
+        .tbtn:active { background: rgba(255,255,255,.35); }
+        #tBomb { right: 22px; bottom: 26px; width: 92px; height: 92px; font-size: 40px; background: rgba(255,93,115,.35); }
+        #tSkill { right: 126px; bottom: 18px; width: 70px; height: 70px; background: rgba(76,201,240,.3); }
+        #tDet { right: 32px; bottom: 130px; width: 62px; height: 62px; background: rgba(255,210,63,.3); }
+        #tEmote { right: 130px; bottom: 102px; width: 52px; height: 52px; font-size: 24px; }
+        #emoteBar { position: absolute; right: 16px; bottom: 200px; display: flex; gap: 6px; pointer-events: auto; }
+        #emoteBar button { width: 48px; height: 48px; border-radius: 12px; border: 2px solid var(--line); background: rgba(42,40,80,.95); font-size: 22px; }
+        body.touch-mode { padding-bottom: 200px; }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 22px; margin: 8px 0 2px; }
+            #game { flex-direction: column; align-items: center; gap: 10px; }
+            .board { padding: 4px; border-radius: 12px; position: sticky; top: 4px; z-index: 20; }
+            body.in-game h1 { display: none; }
+            body.in-game { padding-top: 4px; }
+            #side { width: 100%; max-width: 560px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>💣 Bomberman <span>Multiplayer</span></h1>
+
+    <!-- ===== Tela inicial ===== -->
+    <section id="home">
+        <div class="panel">
+            <canvas id="preview" width="220" height="220"></canvas>
+            <input type="text" id="playerName" placeholder="Seu nome" maxlength="12" autocomplete="off">
+            <div class="label">Cor</div>
+            <div class="swatches" id="colorPick"></div>
+            <div class="label">Chapéu</div>
+            <div class="hats" id="hatPick"></div>
+            <button class="btn" id="createBtn" style="margin-top:16px">CRIAR SALA</button>
+            <p class="or">ou entre na sala de um amigo</p>
+            <div class="joinRow">
+                <input type="text" id="roomCode" placeholder="CÓDIGO" maxlength="4" autocomplete="off">
+                <button class="btn green" id="joinBtn">ENTRAR</button>
+            </div>
+            <div id="rejoinHint"></div>
+            <details id="advanced">
+                <summary>Endereço do servidor</summary>
+                <input type="text" id="serverUrl" placeholder="ex: https://xxx.ngrok-free.app">
+            </details>
+            <div id="error"></div>
+        </div>
+    </section>
+
+    <!-- ===== Jogo ===== -->
+    <section id="game" class="hidden">
+        <div class="board"><canvas id="gameCanvas"></canvas></div>
+        <aside id="side">
+            <div class="card">
+                <div class="roomRow">
+                    <span class="muted">Sala</span><b id="roomLbl">----</b>
+                    <button class="iconBtn" id="copyBtn" title="Copiar link da sala">🔗 Link</button>
+                    <button class="iconBtn" id="settingsBtn" title="Configurações">⚙️</button>
+                </div>
+            </div>
+
+            <div class="card" id="lobbyCard">
+                <h3>Lobby</h3>
+                <button class="btn green" id="readyBtn">ESTOU PRONTO!</button>
+                <div class="muted" id="lobbyStatus" style="margin-top:8px"></div>
+                <div class="label" style="margin-top:10px">Votação de mapa</div>
+                <div class="votes" id="voteList"></div>
+                <div class="label">Regras <span id="hostHint" class="muted"></span></div>
+                <div class="row" id="modeRow">
+                    <button class="chip" data-mode="ffa">Todos contra todos</button>
+                    <button class="chip" data-mode="teams">Times</button>
+                </div>
+                <div class="row" id="targetRow" style="margin-top:6px"></div>
+                <div class="row" style="margin-top:6px">
+                    <span class="muted">Bots:</span>
+                    <button class="chip" id="botMinus">−</button>
+                    <b id="botCount">0</b>
+                    <button class="chip" id="botPlus">+</button>
+                    <button class="chip hidden" id="teamBtn">Trocar de time</button>
+                </div>
+            </div>
+
+            <div class="card hidden" id="scoreCard">
+                <h3 id="scoreTitle">Placar</h3>
+                <div id="scoreRows"></div>
+            </div>
+
+            <div class="card" id="skillCard">
+                <h3>Sua habilidade</h3>
+                <div class="skillRow"><div id="skillIcon">❔</div><div id="skillName">-</div></div>
+                <div id="skillDesc"></div>
+                <div class="bar"><div id="cdFill"></div></div>
+                <div id="cdText"></div>
+            </div>
+
+            <div class="card">
+                <h3>Seus poderes</h3>
+                <div class="stats">
+                    <div class="stat"><b id="statBombs">1</b><small>💣 bombas</small></div>
+                    <div class="stat"><b id="statRange">2</b><small>🔥 alcance</small></div>
+                    <div class="stat"><b id="statSpeed">0</b><small>👟 velocidade</small></div>
+                </div>
+                <div id="badges"></div>
+            </div>
+
+            <div class="card">
+                <h3>Jogadores <span id="mapLbl" class="muted"></span></h3>
+                <ul id="playerList"></ul>
+            </div>
+
+            <div class="card controls" id="helpCard">
+                <h3>Controles</h3>
+                <span class="kbd">Setas</span>/<span class="kbd">WASD</span> andar ·
+                <span class="kbd">Espaço</span> bomba<br>
+                <span class="kbd">E</span> habilidade · <span class="kbd">R</span> detonar remoto<br>
+                <span class="kbd">1</span>–<span class="kbd">6</span> emotes · 🎮 controle funciona também
+            </div>
+            <button class="btn gray" id="leaveBtn" style="font-size:15px;padding:9px">Sair da sala</button>
+        </aside>
+    </section>
+
+    <!-- ===== Configurações ===== -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="card">
+            <h3>Configurações</h3>
+            <div class="toggle"><span>🔊 Som</span><button class="chip" id="optSound"></button></div>
+            <div class="toggle"><span>📳 Tremor de tela</span><button class="chip" id="optShake"></button></div>
+            <div class="toggle"><span>📱 Controles de toque</span><button class="chip" id="optTouch"></button></div>
+            <button class="btn" id="closeSettings" style="margin-top:12px;font-size:16px;padding:9px">Fechar</button>
+        </div>
+    </div>
+
+    <!-- ===== Controles de toque ===== -->
+    <div id="touch" class="hidden">
+        <div id="stick"><div id="knob"></div></div>
+        <div class="tbtn" id="tBomb">💣</div>
+        <div class="tbtn" id="tSkill">⚡</div>
+        <div class="tbtn hidden" id="tDet">📡</div>
+        <div class="tbtn" id="tEmote">😀</div>
+        <div id="emoteBar" class="hidden"></div>
+    </div>
+
+    <div id="toast" style="opacity:0"></div>
+
+    <!-- Socket.IO: tenta o servidor local; se falhar (página aberta como arquivo), usa o CDN -->
+    <script>
+        window.ioReady = new Promise(function (resolve, reject) {
+            function load(src, ok, fail) {
+                var s = document.createElement('script');
+                s.src = src; s.onload = ok; s.onerror = fail;
+                document.head.appendChild(s);
+            }
+            function cdn() { load('https://cdn.socket.io/4.7.5/socket.io.min.js', resolve, function () { reject(new Error('Não consegui carregar o Socket.IO.')); }); }
+            if (location.protocol.indexOf('http') === 0) load('/socket.io/socket.io.js', resolve, cdn);
+            else cdn();
+        });
+    </script>
+    <script src="js/draw.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
