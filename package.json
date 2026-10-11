@@ -1,0 +1,13 @@
+{
+  "name": "bomberman-8-players",
+  "version": "1.0.0",
+  "description": "Bomberman multiplayer para até 8 jogadores com habilidades especiais",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

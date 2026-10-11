@@ -1,0 +1,48 @@
+BOMBERMAN 8 PLAYERS - COMO RODAR
+================================
+
+1. Instale o Node.js (versão 18 ou superior).
+2. Nesta pasta, rode:   npm install
+3. Inicie o servidor:   npm start
+4. Abra no navegador:   http://localhost:3000
+5. Para jogar com amigos pela internet:  ngrok http 3000
+   Clique em CRIAR SALA e use o botão "🔗 Link" para mandar o convite.
+
+COMO FUNCIONA
+-------------
+- Cada sala tem um código de 4 letras. Várias salas podem jogar ao mesmo tempo.
+- No lobby todo mundo treina livremente. Quando todos apertam PRONTO, a partida começa.
+- Precisa de pelo menos 2 jogadores (o anfitrião pode adicionar bots).
+- O anfitrião (⭐) escolhe: todos contra todos ou times, e quantas vitórias para ser campeão.
+- Todos votam no mapa. "Aleatório" troca de mapa a cada rodada.
+- Depois de ~90s começa o HURRY UP: paredes fecham o mapa em espiral.
+- Quem morre vira FANTASMA: anda pela borda e arremessa bombas.
+  Se a bomba do fantasma eliminar alguém, ele volta à vida (uma vez por rodada).
+- Se a internet cair, é só entrar de novo na mesma sala (ou apertar F5):
+  você volta como o mesmo jogador, com as mesmas vitórias (até 60s).
+
+CONTROLES
+---------
+Teclado:  Setas/WASD andar · Espaço bomba · E habilidade · R detonar remoto · 1-6 emotes
+Celular:  joystick na esquerda, botões 💣 ⚡ 📡 😀 na direita (aparecem sozinhos)
+Controle: direcional/analógico andar · A bomba · B/X habilidade · Y detonar · LB/RB emotes · Start = pronto
+
+POWER-UPS
+---------
+💣 +1 bomba   🔥 +1 alcance   👟 velocidade   🎁 troca a habilidade
+🗡️ bomba perfurante (atravessa caixas)   📡 detonador remoto (tecla R)
+💀 caveira: maldição de 12s (lerdeza, turbo, controles invertidos, bombas sem parar,
+   sem bombas ou fogo curto). Encostar em outro jogador passa a maldição pra ele!
+
+AJUSTES
+-------
+Todas as regras (tempos, velocidade, chances de power-up...) ficam em game/constants.js
+Os mapas (tamanho, caixas, labirinto, tempo do Hurry Up) ficam em game/maps.js
+
+HOSPEDAR SEM DEIXAR SEU PC LIGADO (opcional, grátis)
+---------------------------------------------------
+1. Crie uma conta no GitHub e suba esta pasta para um repositório (sem a pasta node_modules).
+2. Crie uma conta no render.com > New > Web Service > escolha o repositório.
+3. Build Command: npm install    Start Command: npm start    Plano: Free
+4. O Render te dá um link fixo (https://seu-jogo.onrender.com). Mande esse link para os amigos.
+   Obs.: no plano grátis o servidor "dorme" sem uso e demora ~1 min para acordar no primeiro acesso.
